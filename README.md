@@ -1,7 +1,7 @@
 
-# coc-wp
+# wordpress-tema
 
-Tema para o site da Casa de Oswaldo Cruz com custom widgets do elementor e acessibilidade.
+Este repositório, intitulado "wordpress-tema," é um projeto de tema para WordPress que apresenta uma estrutura de classes organizada para o desenvolvimento de sites com WordPress.
 
 ## Instalação
 
