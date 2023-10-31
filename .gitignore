@@ -1,0 +1,16 @@
+# Wordpress - ignore core, configuration, examples, uploads and logs.
+# https://github.com/github/gitignore/blob/main/WordPress.gitignore
+
+/node_modules
+vendor
+ignore
+*.log
+*.bkp
+_old_*.php
+_dev_*.php
+.idea
+*.lock
+package-lock.json
+assets/css/*.css
+assets/css/**/*.css
+scripts.js

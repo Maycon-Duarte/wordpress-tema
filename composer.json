@@ -1,0 +1,15 @@
+{
+    "name": "maycon/wordpress-tema",
+    "autoload": {
+        "psr-4": {
+            "WordpressTema\\": "classes/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Maycon Duarte",
+            "email": "mgam2004@gmail.com"
+        }
+    ],
+    "require": {}
+}

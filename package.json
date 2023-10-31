@@ -1,0 +1,37 @@
+{
+  "name": "wordpress-tema-dependencias",
+  "version": "1.0.0",
+  "description": "Dependências do tema",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "main": "gulpfile.js",
+  "scripts": {
+    "scss-watch": "gulp watch",
+    "scss": "gulp sass"
+  },
+  "author": "lojainterativa.com",
+  "license": "ISC",
+  "dependencies": {
+    "@splidejs/splide": "^4.1.4",
+    "bootstrap": "^5.3.1",
+    "bootstrap-icons": "^1.10.5",
+    "jquery": "^3.7.1",
+    "lottie-web": "^5.12.2",
+    "npm": "^10.0.0"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-include": "^2.4.1",
+    "gulp-sass": "^5.1.0",
+    "node-sass": "^9.0.0",
+    "sass": "^1.64.2"
+  },
+  "overrides": {
+    "chokidar": "3.5.3",
+    "glob-parent": "6.0.1"
+  }
+}

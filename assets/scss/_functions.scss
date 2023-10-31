@@ -1,0 +1,3 @@
+@function dark-mode-selector($selector) {
+    @return ':root.dark-mode #{$selector}';
+}
