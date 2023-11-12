@@ -147,7 +147,7 @@ class ElementorWidgets
         // Remove acentos e caracteres especiais
         $args[0] = preg_replace('/[^a-zA-Z0-9]/', '-', $args[0]);
 
-        $widget_class = str_replace('-', '_', strtolower($args[0]));
+        $widget_class = str_replace('-', '_', $args[0]);
         $widget_name = str_replace('_', '-', strtolower($args[0]));
         $widget_title = ucwords(str_replace('-', ' ', $args[0]));
 

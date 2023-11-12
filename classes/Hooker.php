@@ -8,7 +8,6 @@ trait Hooker
     {
         static::registerActions();
         static::registerFilters();
-        static::registerShortcodes();
     }
 
     protected static function registerActions()
@@ -40,17 +39,6 @@ trait Hooker
                     add_filter($hook, [static::class, $function], $priority, $args);
                 } elseif (is_string($callback)) {
                     add_filter($hook, [static::class, $callback]);
-                }
-            }
-        }
-    }
-
-    protected static function registerShortcodes()
-    {
-        if (property_exists(static::class, 'shortcodes')) {
-            foreach (static::$shortcodes as $shortcode => $callback) {
-                if (is_string($shortcode) && (is_string($callback) || is_callable($callback))) {
-                    add_shortcode($shortcode, [static::class, $callback]);
                 }
             }
         }
