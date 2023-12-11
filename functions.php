@@ -8,12 +8,14 @@ use WordpressTema\Api;
 use WordpressTema\Config;
 use WordpressTema\Customizer;
 use WordpressTema\ElementorWidgets;
+use WordpressTema\Functions;
 use WordpressTema\Log;
 use WordpressTema\Notices;
 
 Config::init();
 Customizer::init();
-ElementorWidgets::instance();
+Functions::init();
+//ElementorWidgets::instance();
 Api::init();
 
 // Notices::add_notice('Teste de notice', 'info');
