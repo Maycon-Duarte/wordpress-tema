@@ -55,7 +55,7 @@ class Config
         self::init_scripts();
     }
 
-    public static function register_assets_admin(){
+    public static function register_admin_assets(){
         // wp_register_style("theme-style-admin", THEME_URL . "/style-admin.css?rand=" . rand(10, 10000));
 
         self::init_scripts_admin();
