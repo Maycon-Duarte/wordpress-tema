@@ -1,10 +1,11 @@
 import gulp from 'gulp';
 import * as sass from 'sass';
 import gulpSass from 'gulp-sass';
-const gulpSassCompiler = gulpSass(sass);
 import include from 'gulp-include';
-import npmDist from 'gulp-npm-dist';
+import npmMainfiles from 'gulp-npm-mainfiles';
 import zip from 'gulp-zip';
+
+const gulpSassCompiler = gulpSass(sass);
 
 gulp.task('sass', function () {
     return gulp.src('assets/scss/**/*.scss')
@@ -15,12 +16,13 @@ gulp.task('sass', function () {
 gulp.task('watch', function () {
     gulp.watch('assets/scss/**/*.scss', gulp.series('sass'));
     gulp.watch('assets/js/**/*.js', gulp.series('scripts'));
-    gulp.watch('node_modules/**/*', gulp.series('copy-dependencies'));
+    gulp.watch('package.json', gulp.series('copy-dependencies'));
 });
 
-gulp.task('copy-dependencies', function () {
-    return gulp.src(npmDist(), { base: './node_modules' })
-        .pipe(gulp.dest('./assets/dependencies'));
+gulp.task('copy-dependencies', function (done) {
+    gulp.src(npmMainfiles(), { base: "./node_modules" })
+        .pipe(gulp.dest('./assets/lib'))
+        .on('end', done);  // Adicionando o callback done para indicar conclusão assíncrona
 });
 
 gulp.task('zip', function () {
@@ -56,4 +58,4 @@ gulp.task('scripts', function () {
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('default', gulp.series('sass', 'scripts', 'watch'));
+gulp.task('default', gulp.series('copy-dependencies', 'sass', 'scripts', 'watch'));

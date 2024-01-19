@@ -8,7 +8,7 @@ class Log
     {
         self::create_log($log);
 
-        $hora = wp_date('d/m/Y H:i:s');
+        $hora = date_i18n('d/m/Y H:i:s');
 
         if ($append) {
             file_put_contents(get_stylesheet_directory() . '/logs/' . $log, print_r($hora . ' - ' . $item, true) . "\n", FILE_APPEND);
@@ -24,7 +24,8 @@ class Log
                 file_put_contents(get_stylesheet_directory() . '/logs/' . $log, '');
             }
         } else {
-            mkdir(get_stylesheet_directory() . '/logs');
+            // cria com permisões 777
+            mkdir(get_stylesheet_directory() . '/logs', 0777, true);
             file_put_contents(get_stylesheet_directory() . '/logs/' . $log, '');
         }
     }

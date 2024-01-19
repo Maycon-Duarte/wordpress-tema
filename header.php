@@ -11,5 +11,5 @@
 <body <?php body_class(); ?>>
     <?php wp_body_open(); ?>
     <header>
-
+        <h1 class="ff-roboto text-preto fs-16"><?php bloginfo('name'); ?></h1>
     </header>

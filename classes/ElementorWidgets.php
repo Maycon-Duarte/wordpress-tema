@@ -112,7 +112,7 @@ class ElementorWidgets
 
     public function register_widgets($widgets_manager)
     {
-        $widget_files = glob(get_template_directory() . '/parts/widgets/*.php');
+        $widget_files = glob(get_template_directory() . '/templates/widgets/*.php');
 
         foreach ($widget_files as $widget_file) {
             require_once($widget_file);
@@ -155,7 +155,7 @@ class ElementorWidgets
         $widget_content = $this->get_widget_template($widget_class, $widget_name, $widget_title);
 
         // Caminho para o diretório de widgets do tema
-        $widget_dir = './parts/widgets';
+        $widget_dir = './templates/widgets';
 
         // Verifica e cria o diretório se não existir
         if (!file_exists($widget_dir)) {

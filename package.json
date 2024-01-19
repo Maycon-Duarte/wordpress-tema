@@ -8,6 +8,7 @@
   },
   "main": "gulpfile.js",
   "scripts": {
+    "gulp": "gulp",
     "watch": "gulp watch",
     "scss": "gulp sass",
     "scripts": "gulp scripts",
@@ -16,26 +17,33 @@
   "author": "https://github.com/Maycon-Duarte",
   "license": "ISC",
   "dependencies": {
-    "@splidejs/splide": "^4.1.4",
-    "axios": "^1.6.0",
     "bootstrap": "^5.3.1",
     "bootstrap-icons": "^1.10.5",
-    "jquery": "^3.7.1",
-    "jquery-mask-plugin": "^1.14.16",
-    "lottie-web": "^5.12.2",
-    "vue": "^3.3.8"
+    "jquery": "^3.7.1"
   },
   "devDependencies": {
     "gulp": "^4.0.2",
     "gulp-include": "^2.4.1",
-    "gulp-npm-dist": "^1.0.4",
+    "gulp-npm-mainfiles": "^1.0.5",
     "gulp-sass": "^5.1.0",
     "gulp-zip": "^6.0.0",
     "node-sass": "^9.0.0",
     "sass": "^1.64.2"
   },
-  "overrides": {
-    "chokidar": "3.5.3",
+  "mainfiles": {
+    "bootstrap": [
+      "/scss/**",
+      "/dist/js/bootstrap.min.js"
+    ],
+    "bootstrap-icons": [
+      "/font/bootstrap-icons.min.css"
+    ],
+    "jquery": [
+      "/dist/jquery.min.js" 
+    ]
+  },
+  "overrides": {  
+    "chokidar": "3.5.3", 
     "glob-parent": "6.0.1"
-  }
+  } 
 }

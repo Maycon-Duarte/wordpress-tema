@@ -1,11 +1,11 @@
-@use "mixins";
+@import 'bootstrap';
 
 @import 'variables';
-@import "functions";
-@import "global";
+@import 'functions';
+@import 'global';
 
 // common styles
-@import 'common/header';
+@import 'common/header'; 
 @import 'common/footer';
 
 // parts
@@ -15,11 +15,3 @@
 // archive
 
 // forms
-
-.container {
-    max-width: 1320px !important;
-}
-
-#wpadminbar {
-    position: fixed !important;
-}

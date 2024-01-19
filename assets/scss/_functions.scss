@@ -1,3 +1,36 @@
 @function dark-mode-selector($selector) {
     @return ':root.dark-mode #{$selector}';
 }
+
+@function px-to-rem($value) {
+    $remValue: calc($value / 16) + rem;
+    @return $remValue;
+}
+
+@function is-par($value) {
+    @if $value % 2 == 0 {
+        @return true;
+    } @else {
+        @return false;
+    }
+}
+
+@each $color, $value in $colors {
+    .text-#{$color} {
+        color: $value !important;
+    }
+
+    .text-alt-#{$color} {
+        #{dark-mode-selector('&')}: {
+            color: $value !important;
+        }
+    }
+}
+
+@for $i from 1 through 100 {
+    @if is-par($i) {
+        .fs-#{$i} {
+            font-size: px-to-rem($i) !important;
+        }
+    }
+}

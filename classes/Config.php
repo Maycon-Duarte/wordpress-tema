@@ -45,7 +45,9 @@ class Config
     {
         wp_register_style("theme-style", THEME_URL . "/style.css?rand=" . rand(10, 10000));
 
-        wp_register_script("theme-script", THEME_URL . "/scripts.js?rand=" . rand(10, 10000), [], false, true);
+        wp_register_script("theme-script", THEME_URL . "/scripts.js?rand=" . rand(10, 10000), ['bootstrap'], false, true);
+            wp_register_script("bootstrap", THEME_URL . "/assets/lib/bootstrap/dist/js/bootstrap.min.js", ['my-jquery'], false, true);
+            wp_register_script('my-jquery', THEME_URL . '/assets/lib/jquery/dist/jquery.min.js', [], false, true);
             wp_localize_script('theme-script', 'THEME', [
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'home_url' => home_url(),
@@ -56,8 +58,8 @@ class Config
     }
 
     public static function register_admin_assets(){
-        // wp_register_style("theme-style-admin", THEME_URL . "/style-admin.css?rand=" . rand(10, 10000));
-
+        // wp_register_style("theme-style-admin", THEME_URL . "/assets/css/admin.css?rand=" . rand(10, 10000));
+ 
         self::init_scripts_admin();
     }
 
