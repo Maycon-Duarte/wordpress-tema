@@ -43,7 +43,8 @@ class Config
 
     public static function register_assets()
     {
-        wp_register_style("theme-style", THEME_URL . "/style.css?rand=" . rand(10, 10000));
+        wp_register_style("theme-style", THEME_URL . "/style.css?rand=" . rand(10, 10000), ['bootstrap-icons']);
+            wp_register_style("bootstrap-icons", THEME_URL . "/assets/lib/bootstrap-icons/font/bootstrap-icons.min.css");
 
         wp_register_script("theme-script", THEME_URL . "/scripts.js?rand=" . rand(10, 10000), ['bootstrap'], false, true);
             wp_register_script("bootstrap", THEME_URL . "/assets/lib/bootstrap/dist/js/bootstrap.min.js", ['my-jquery'], false, true);

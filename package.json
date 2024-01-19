@@ -36,7 +36,8 @@
       "/dist/js/bootstrap.min.js"
     ],
     "bootstrap-icons": [
-      "/font/bootstrap-icons.min.css"
+      "/font/bootstrap-icons.min.css",
+      "/font/fonts/**"
     ],
     "jquery": [
       "/dist/jquery.min.js" 
