@@ -13,4 +13,4 @@ _dev_*.php
 package-lock.json
 assets/css/*.css
 assets/css/**/*.css
-./scripts.js
+/scripts.js
