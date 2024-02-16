@@ -8,7 +8,7 @@ Este repositório, intitulado "wordpress-tema," é um projeto de tema para WordP
 clone o projeto na pasta de temas do wordpress e instale as dependências usando:
 
 ```bash
-npm install
+npm install && composer install 
 ```
     
 ## WP_CLI
