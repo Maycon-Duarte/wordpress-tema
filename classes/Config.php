@@ -47,13 +47,14 @@ class Config
             wp_register_style("bootstrap-icons", THEME_URL . "/assets/lib/bootstrap-icons/font/bootstrap-icons.min.css");
 
         wp_register_script("theme-script", THEME_URL . "/scripts.js?rand=" . rand(10, 10000), ['bootstrap'], false, true);
-            wp_register_script("bootstrap", THEME_URL . "/assets/lib/bootstrap/dist/js/bootstrap.min.js", ['my-jquery'], false, true);
-            wp_register_script('my-jquery', THEME_URL . '/assets/lib/jquery/dist/jquery.min.js', [], false, true);
+            wp_register_script("bootstrap", THEME_URL . "/assets/lib/bootstrap/dist/js/bootstrap.min.js", ['jquery'], false, true);
+            wp_deregister_script('jquery');
+            wp_register_script('jquery', THEME_URL . '/assets/lib/jquery/dist/jquery.min.js', [], false, true);
             wp_localize_script('theme-script', 'THEME', [
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'home_url' => home_url(),
-                'theme_url' => THEME_URL,
-                'theme_dir' => THEME_DIR,
+                'AJAX_URL' => admin_url('admin-ajax.php'),
+                'HOME_URL' => home_url(),
+                'THEME_URL' => THEME_URL,
+                'THEME_DIR' => THEME_DIR,
             ]);
         self::init_scripts();
     }

@@ -3,8 +3,7 @@ $font-pt-serif: 'PT Serif', serif;
 $font-inter: 'Inter', sans-serif;
 $font-roboto: 'Roboto', sans-serif;
 
-$fonts : (
-    'pt-serif': $font-pt-serif,
+$fonts : ('pt-serif': $font-pt-serif,
     'inter': $font-inter,
     'roboto': $font-roboto,
 );
@@ -14,6 +13,6 @@ $preto: #000000;
 $branco: #ffffff;
 
 $colors: (
-    'preto': #d9d9d9,
+    'preto': $preto,
     'branco': $branco,
 );
