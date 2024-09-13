@@ -22,7 +22,7 @@
     "jquery": "^3.7.1"
   },
   "devDependencies": {
-    "gulp": "^4.0.2",
+    "gulp": "^5.0.0",
     "gulp-include": "^2.4.1",
     "gulp-npm-mainfiles": "^1.0.5",
     "gulp-sass": "^5.1.0",
@@ -40,11 +40,11 @@
       "/font/fonts/**"
     ],
     "jquery": [
-      "/dist/jquery.min.js" 
+      "/dist/jquery.min.js"
     ]
   },
-  "overrides": {  
-    "chokidar": "3.5.3", 
+  "overrides": {
+    "chokidar": "3.5.3",
     "glob-parent": "6.0.1"
-  } 
+  }
 }
