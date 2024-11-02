@@ -8,6 +8,8 @@
   },
   "main": "gulpfile.js",
   "scripts": {
+    "zip": "gulp zip",
+    "serve": "gulp serve",
     "gulp": "gulp",
     "watch": "gulp watch",
     "scss": "gulp sass",
@@ -18,7 +20,8 @@
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.10.5",
+    "bootstrap-icons": "^1.11.3",
+    "browser-sync": "^3.0.3",
     "jquery": "^3.7.1"
   },
   "devDependencies": {
@@ -42,9 +45,5 @@
     "jquery": [
       "/dist/jquery.min.js"
     ]
-  },
-  "overrides": {
-    "chokidar": "3.5.3",
-    "glob-parent": "6.0.1"
   }
 }
