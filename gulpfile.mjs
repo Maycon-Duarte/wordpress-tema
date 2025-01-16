@@ -30,7 +30,7 @@ gulp.task('copy-dependencies', function (done) {
 
 gulp.task('serve', function () {
     bs.init({
-        proxy: "solicitacoes-taesa.local", // Configurando proxy para o servidor PHP
+        proxy: "dominio.local", // Configurando proxy para o servidor PHP
         notify: false
     });
 

@@ -10,6 +10,7 @@ _old_*.php
 _dev_*.php
 .idea
 *.lock
+bun.lockb
 package-lock.json
 assets/css/*.css
 assets/css/**/*.css
