@@ -185,6 +185,7 @@ class Api
                     'category' => get_the_category()[0]->name ?? 'Uncategorized',
                     'featuredImage' => get_the_post_thumbnail_url(get_the_ID(), 'medium'),
                     'excerpt' => get_the_excerpt(),
+                    'content' => apply_filters('the_content', get_the_content()),
                     'ratio' => get_field('tamanho_do_card') ?: '1/1',
                 ];
             }
