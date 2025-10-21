@@ -186,7 +186,7 @@ class Api
                     'featuredImage' => get_the_post_thumbnail_url(get_the_ID(), 'large'),
                     'featuredImageModal' => get_field('thumb_modal', get_the_ID()) ?: 'https://api-ifdo.lojahomologacao.com.br/wp-content/uploads/2025/10/Link-%E2%86%92-Studio-Selects-brand-identity-for-perfumery-Serviette-is-steeped-in-sophistication.jpg',
                     'excerpt' => get_the_excerpt(),
-                    'content' => apply_filters('the_content', get_the_content()),
+                    'content' => wp_kses_post(apply_filters('the_content', get_the_content())),
                     'ratio' => get_field('tamanho_do_card') ?: '1/1',
                 ];
             }
