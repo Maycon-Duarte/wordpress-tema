@@ -2,6 +2,35 @@
 
 namespace WordpressTema;
 
+use WP_Query;
+use WP_REST_Request;
+use WP_REST_Response;
+
+use function register_rest_route;
+use function get_posts;
+use function is_email;
+use function is_numeric;
+use function get_the_ID;
+use function get_the_title;
+use function get_post_field;
+use function get_the_date;
+use function human_time_diff;
+use function get_the_time;
+use function current_time;
+use function get_the_category;
+use function get_the_post_thumbnail_url;
+use function get_field;
+use function get_the_excerpt;
+use function wp_kses_post;
+use function apply_filters;
+use function get_the_content;
+use function wp_reset_postdata;
+use function setup_postdata;
+use function get_fields;
+use function get_the_terms;
+use function is_wp_error;
+use function get_post_time;
+
 class Api
 {
     use Hooker;
@@ -20,6 +49,14 @@ class Api
         register_rest_route('api/v1', 'news', [
             'methods' => ['GET'],
             'callback' => [self::class, 'get_news'],
+            'permission_callback' => '__return_true',
+        ]);
+
+
+        // Rota para obter um projeto pelo slug (post_type = projeto)
+        register_rest_route('api/v1', 'projeto/(?P<slug>[-a-zA-Z0-9_]+)', [
+            'methods' => ['GET'],
+            'callback' => [self::class, 'get_projeto_by_slug'],
             'permission_callback' => '__return_true',
         ]);
     }
@@ -142,7 +179,7 @@ class Api
         return $errors;
     }
 
-    public static function get_news(\WP_REST_Request $request)
+    public static function get_news(WP_REST_Request $request)
     {
         $errors = self::request_validate($request, [
             'ppp' => ['numeric'],
@@ -150,7 +187,7 @@ class Api
         ]);
 
         if (!empty($errors)) {
-            return new \WP_REST_Response([
+            return new WP_REST_Response([
                 'status' => false,
                 'errors' => $errors,
             ], 200);
@@ -170,7 +207,7 @@ class Api
             'order' => 'DESC',
         ];
 
-        $query = new \WP_Query($args);
+        $query = new WP_Query($args);
 
         $news = [];
         if ($query->have_posts()) {
@@ -194,10 +231,76 @@ class Api
 
         wp_reset_postdata();
 
-        return new \WP_REST_Response([
+        return new WP_REST_Response([
             'status' => true,
             'data' => $news,
             'max_pages' => $query->max_num_pages,
+        ], 200);
+    }
+
+    /**
+     * Retorna um projeto (post_type = projeto) pelo slug incluindo campos ACF
+     * GET /wp-json/api/v1/projeto/{slug}
+     */
+    public static function get_projeto_by_slug(WP_REST_Request $request)
+    {
+        $slug = $request->get_param('slug');
+
+        if (empty($slug)) {
+            return new WP_REST_Response([
+                'status' => false,
+                'errors' => ['slug' => 'O slug é obrigatório'],
+            ], 200);
+        }
+
+        $posts = get_posts([
+            'name' => $slug,
+            'post_type' => 'projeto',
+            'post_status' => 'publish',
+            'numberposts' => 1,
+        ]);
+
+        if (empty($posts)) {
+            return new WP_REST_Response([
+                'status' => false,
+                'errors' => ['not_found' => 'Projeto não encontrado'],
+            ], 200);
+        }
+        $post = $posts[0];
+        setup_postdata($post);
+
+        // Pegar todos os campos ACF se disponível
+        $acf = function_exists('get_fields') ? get_fields($post->ID) : [];
+
+        // tags definidas via ACF (repeater 'tags' -> subfield 'tag')
+        $tags = [];
+        if (!empty($acf) && !empty($acf['tags']) && is_array($acf['tags'])) {
+            foreach ($acf['tags'] as $row) {
+                if (!empty($row['tag'])) {
+                    $tags[] = $row['tag'];
+                }
+            }
+        }
+
+        $item = [
+            'id' => $post->ID,
+            'title' => get_the_title($post->ID),
+            'slug' => $slug,
+            'date' => get_the_date('j M Y', $post->ID),
+            'dateRelative' => human_time_diff(get_post_time('U', true, $post), current_time('timestamp')) . ' atrás',
+            'tags' => $tags,
+            'featuredImage' => get_the_post_thumbnail_url($post->ID, 'large'),
+            'excerpt' => get_the_excerpt($post->ID),
+            'content' => wp_kses_post(apply_filters('the_content', $post->post_content)),
+            'ratio' => get_field('tamanho_do_card', $post->ID) ?: '1/1',
+            'acf' => $acf,
+        ];
+
+        wp_reset_postdata();
+
+        return new WP_REST_Response([
+            'status' => true,
+            'data' => $item,
         ], 200);
     }
 }
