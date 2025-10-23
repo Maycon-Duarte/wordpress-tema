@@ -335,6 +335,11 @@ class Api
         $ppp = !empty($data['ppp']) ? intval($data['ppp']) : 10;
         $page = !empty($data['page']) ? intval($data['page']) : 1;
         $categoria = !empty($data['categoria']) ? sanitize_text_field($data['categoria']) : '';
+        // Permitir múltiplos slugs separados por vírgula
+        $categorias = [];
+        if (!empty($categoria)) {
+            $categorias = array_map('trim', explode(',', $categoria));
+        }
 
         $args = [
             'post_type' => 'projeto',
@@ -346,12 +351,12 @@ class Api
         ];
 
         // Filtrar por categoria se fornecida
-        if (!empty($categoria)) {
+        if (!empty($categorias)) {
             $args['tax_query'] = [
                 [
                     'taxonomy' => 'categoria-de-projeto',
                     'field'    => 'slug',
-                    'terms'    => $categoria,
+                    'terms'    => $categorias,
                 ],
             ];
         }
