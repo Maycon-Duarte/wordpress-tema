@@ -289,12 +289,26 @@ class Api
             }
         }
 
+        // Pegar categorias do projeto
+        $categorias = [];
+        $project_terms = get_the_terms($post->ID, 'categoria-de-projeto');
+        if (!empty($project_terms) && !is_wp_error($project_terms)) {
+            foreach ($project_terms as $term) {
+                $categorias[] = [
+                    'id' => $term->term_id,
+                    'name' => $term->name,
+                    'slug' => $term->slug,
+                ];
+            }
+        }
+
         $item = [
             'id' => $post->ID,
             'title' => get_the_title($post->ID),
             'slug' => $slug,
             'date' => get_the_date('j M Y', $post->ID),
             'dateRelative' => human_time_diff(get_post_time('U', true, $post), current_time('timestamp')) . ' atrás',
+            'categorias' => $categorias,
             'tags' => $tags,
             'featuredImage' => get_the_post_thumbnail_url($post->ID, 'large'),
             'excerpt' => get_the_excerpt($post->ID),
