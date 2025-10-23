@@ -353,6 +353,7 @@ class Api
         // Filtrar por categoria se fornecida
         if (!empty($categorias)) {
             $args['tax_query'] = [
+                'relation' => 'OR',
                 [
                     'taxonomy' => 'categoria-de-projeto',
                     'field'    => 'slug',
