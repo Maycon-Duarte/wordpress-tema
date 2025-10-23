@@ -59,6 +59,13 @@ class Api
             'callback' => [self::class, 'get_projeto_by_slug'],
             'permission_callback' => '__return_true',
         ]);
+
+        // Rota para listar projetos (com filtro por categoria)
+        register_rest_route('api/v1', 'projetos', [
+            'methods' => ['GET'],
+            'callback' => [self::class, 'get_projetos'],
+            'permission_callback' => '__return_true',
+        ]);
     }
 
     public static function request_validate($request, $rules)
@@ -302,5 +309,149 @@ class Api
             'status' => true,
             'data' => $item,
         ], 200);
+    }
+
+    /**
+     * Lista projetos com filtro opcional por categoria
+     * GET /wp-json/api/v1/projetos?categoria=slug-da-categoria&ppp=10&page=1
+     */
+    public static function get_projetos(WP_REST_Request $request)
+    {
+        $errors = self::request_validate($request, [
+            'ppp' => ['numeric'],
+            'page' => ['numeric'],
+            'categoria' => ['string'],
+        ]);
+
+        if (!empty($errors)) {
+            return new WP_REST_Response([
+                'status' => false,
+                'errors' => $errors,
+            ], 200);
+        }
+
+        $data = $request->get_params();
+
+        $ppp = !empty($data['ppp']) ? intval($data['ppp']) : 10;
+        $page = !empty($data['page']) ? intval($data['page']) : 1;
+        $categoria = !empty($data['categoria']) ? sanitize_text_field($data['categoria']) : '';
+
+        $args = [
+            'post_type' => 'projeto',
+            'posts_per_page' => $ppp,
+            'paged' => $page,
+            'post_status' => 'publish',
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ];
+
+        // Filtrar por categoria se fornecida
+        if (!empty($categoria)) {
+            $args['tax_query'] = [
+                [
+                    'taxonomy' => 'categoria-de-projeto',
+                    'field'    => 'slug',
+                    'terms'    => $categoria,
+                ],
+            ];
+        }
+
+        $query = new WP_Query($args);
+
+        $projetos = [];
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                
+                // Pegar categorias do projeto
+                $categorias = [];
+                $project_terms = get_the_terms(get_the_ID(), 'categoria-de-projeto');
+                if (!empty($project_terms) && !is_wp_error($project_terms)) {
+                    foreach ($project_terms as $term) {
+                        $categorias[] = [
+                            'id' => $term->term_id,
+                            'name' => $term->name,
+                            'slug' => $term->slug,
+                        ];
+                    }
+                }
+
+                // Pegar campos ACF se disponível
+                $acf = function_exists('get_fields') ? get_fields(get_the_ID()) : [];
+
+                // tags definidas via ACF (repeater 'tags' -> subfield 'tag')
+                $tags = [];
+                if (!empty($acf) && !empty($acf['tags']) && is_array($acf['tags'])) {
+                    foreach ($acf['tags'] as $row) {
+                        if (!empty($row['tag'])) {
+                            $tags[] = $row['tag'];
+                        }
+                    }
+                }
+
+                $projetos[] = [
+                    'id' => get_the_ID(),
+                    'title' => get_the_title(),
+                    'slug' => get_post_field('post_name', get_the_ID()),
+                    'date' => get_the_date('j M Y'),
+                    'dateRelative' => human_time_diff(get_the_time('U'), current_time('timestamp')) . ' atrás',
+                    'categorias' => $categorias,
+                    'tags' => $tags,
+                    'featuredImage' => get_the_post_thumbnail_url(get_the_ID(), 'large'),
+                    'excerpt' => get_the_excerpt(),
+                    'ratio' => get_field('tamanho_do_card') ?: '1/1',
+                ];
+            }
+        }
+
+        wp_reset_postdata();
+
+        return new WP_REST_Response([
+            'status' => true,
+            'data' => $projetos,
+            'max_pages' => $query->max_num_pages,
+            'total' => $query->found_posts,
+        ], 200);
+    }
+
+    /**
+     * Valida se um CPF é válido
+     */
+    public static function is_cpf($cpf)
+    {
+        // Remove caracteres não numéricos
+        $cpf = preg_replace('/[^0-9]/', '', $cpf);
+
+        // Verifica se tem 11 dígitos
+        if (strlen($cpf) != 11) {
+            return false;
+        }
+
+        // Verifica se todos os dígitos são iguais
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
+            return false;
+        }
+
+        // Calcula e verifica o primeiro dígito verificador
+        $sum = 0;
+        for ($i = 0; $i < 9; $i++) {
+            $sum += $cpf[$i] * (10 - $i);
+        }
+        $remainder = $sum % 11;
+        $digit1 = ($remainder < 2) ? 0 : 11 - $remainder;
+
+        if ($cpf[9] != $digit1) {
+            return false;
+        }
+
+        // Calcula e verifica o segundo dígito verificador
+        $sum = 0;
+        for ($i = 0; $i < 10; $i++) {
+            $sum += $cpf[$i] * (11 - $i);
+        }
+        $remainder = $sum % 11;
+        $digit2 = ($remainder < 2) ? 0 : 11 - $remainder;
+
+        return $cpf[10] == $digit2;
     }
 }
