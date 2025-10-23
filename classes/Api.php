@@ -107,7 +107,7 @@ class Api
                         break;
 
                     case 'string':
-                        if (!is_string($data[$field])) {
+                        if (!empty($data[$field]) && !is_string($data[$field])) {
                             $errors[$field] = "$field deve ser uma string";
                         }
                         break;
