@@ -360,8 +360,11 @@ class Api
             'posts_per_page' => $ppp,
             'paged' => $page,
             'post_status' => 'publish',
-            'orderby' => 'date',
-            'order' => 'DESC',
+            // 'orderby' => 'date',
+            // 'order' => 'DESC',
+
+            // rand 
+            'orderby' => 'rand',
         ];
 
         // Filtrar por categoria se fornecida
