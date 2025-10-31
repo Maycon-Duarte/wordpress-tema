@@ -66,6 +66,12 @@ class Api
             'callback' => [self::class, 'get_projetos'],
             'permission_callback' => '__return_true',
         ]);
+
+        register_rest_route('api/v1', 'page-content', [
+            'methods' => ['GET'],
+            'callback' => [self::class, 'get_page_content'],
+            'permission_callback' => fn() => is_user_logged_in(),
+        ]);
     }
 
     public static function request_validate($request, $rules)
@@ -385,7 +391,7 @@ class Api
         if ($query->have_posts()) {
             while ($query->have_posts()) {
                 $query->the_post();
-                
+
                 // Pegar categorias do projeto
                 $categorias = [];
                 $project_terms = get_the_terms(get_the_ID(), 'categoria-de-projeto');
@@ -438,6 +444,48 @@ class Api
             'max_pages' => $query->max_num_pages,
             'total' => $query->found_posts,
         ], 200);
+    }
+
+    /*
+    * Retorna o conteúdo da página de segurança
+    * GET /wp-json/api/v1/page-content?path=terms-and-conditions
+    */
+    public static function get_page_content($request)
+    {
+        $errors = self::request_validate($request, [
+            'path' => ['required', 'string'],
+        ]);
+
+        if (!empty($errors)) {
+            return new \WP_REST_Response([
+                'status' => false,
+                'message' => $errors,
+            ], 200);
+        }
+
+        $page = get_page_by_path($request['path']);
+
+        if (!$page) {
+            return new \WP_REST_Response([
+                'status' => false,
+                'message' => 'Página não encontrada',
+            ], 404);
+        }
+
+        if (!$page) {
+            return new \WP_REST_Response([
+                'status' => false,
+                'message' => 'Página não encontrada',
+            ], 404);
+        }
+
+        $response = [
+            'id' => $page->ID,
+            'title' => $page->post_title,
+            'content' => wpautop($page->post_content),
+        ];
+
+        return new \WP_REST_Response($response);
     }
 
     /**
