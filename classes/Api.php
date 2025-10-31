@@ -70,7 +70,7 @@ class Api
         register_rest_route('api/v1', 'page-content', [
             'methods' => ['GET'],
             'callback' => [self::class, 'get_page_content'],
-            'permission_callback' => fn() => is_user_logged_in(),
+            'permission_callback' => '__return_true',
         ]);
     }
 
