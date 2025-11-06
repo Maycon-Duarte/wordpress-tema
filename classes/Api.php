@@ -72,6 +72,19 @@ class Api
             'callback' => [self::class, 'get_page_content'],
             'permission_callback' => '__return_true',
         ]);
+
+        // Rota para listar teams e obter team por slug
+        register_rest_route('api/v1', 'teams', [
+            'methods' => ['GET'],
+            'callback' => [self::class, 'get_teams'],
+            'permission_callback' => '__return_true',
+        ]);
+
+        register_rest_route('api/v1', 'team/(?P<slug>[-a-zA-Z0-9_]+)', [
+            'methods' => ['GET'],
+            'callback' => [self::class, 'get_team_by_slug'],
+            'permission_callback' => '__return_true',
+        ]);
     }
 
     public static function request_validate($request, $rules)
@@ -443,6 +456,194 @@ class Api
             'data' => $projetos,
             'max_pages' => $query->max_num_pages,
             'total' => $query->found_posts,
+        ], 200);
+    }
+
+    /**
+     * Retorna um team pelo slug incluindo campos ACF
+     * GET /wp-json/api/v1/team/{slug}
+     */
+    public static function get_team_by_slug(WP_REST_Request $request)
+    {
+        $slug = $request->get_param('slug');
+
+        if (empty($slug)) {
+            return new WP_REST_Response([
+                'status' => false,
+                'errors' => ['slug' => 'O slug é obrigatório'],
+            ], 200);
+        }
+
+        $posts = get_posts([
+            'name' => $slug,
+            'post_type' => 'team',
+            'post_status' => 'publish',
+            'numberposts' => 1,
+        ]);
+
+        if (empty($posts)) {
+            return new WP_REST_Response([
+                'status' => false,
+                'errors' => ['not_found' => 'Team não encontrado'],
+            ], 200);
+        }
+
+        $post = $posts[0];
+        setup_postdata($post);
+
+        $acf = function_exists('get_fields') ? get_fields($post->ID) : [];
+
+        // ACF tags repeater (tag + tag_link)
+        $tags = [];
+        if (!empty($acf) && !empty($acf['tags']) && is_array($acf['tags'])) {
+            foreach ($acf['tags'] as $row) {
+                $tags[] = [
+                    'tag' => $row['tag'] ?? '',
+                    'tag_link' => $row['tag_link'] ?? '',
+                ];
+            }
+        }
+
+        $item = [
+            'id' => $post->ID,
+            'title' => get_the_title($post->ID),
+            'slug' => $slug,
+            'thumb' => $acf['thumb'] ?? get_the_post_thumbnail_url($post->ID, 'large'),
+            'job_title' => $acf['job_title'] ?? '',
+            'academic_qualifications' => $acf['academic_qualifications'] ?? '',
+            'tags' => $tags,
+            'excerpt' => get_the_excerpt($post->ID),
+            'content' => wp_kses_post(apply_filters('the_content', $post->post_content)),
+            'acf' => $acf,
+        ];
+
+        wp_reset_postdata();
+
+        return new WP_REST_Response([
+            'status' => true,
+            'data' => $item,
+        ], 200);
+    }
+
+    /**
+     * Lista teams. Primeiro os com categoria 'directors' (em ordem rand), depois os demais (rand).
+     * GET /wp-json/api/v1/teams?ppp=10&page=1
+     * opcional: ?categoria=slug,se necessário (filtra por team-category)
+     */
+    public static function get_teams(WP_REST_Request $request)
+    {
+        $errors = self::request_validate($request, [
+            'ppp' => ['numeric'],
+            'page' => ['numeric'],
+            'categoria' => ['string'],
+        ]);
+
+        if (!empty($errors)) {
+            return new WP_REST_Response([
+                'status' => false,
+                'errors' => $errors,
+            ], 200);
+        }
+
+        $data = $request->get_params();
+        $ppp = !empty($data['ppp']) ? intval($data['ppp']) : 10;
+        $page = !empty($data['page']) ? intval($data['page']) : 1;
+        $categoria = !empty($data['categoria']) ? sanitize_text_field($data['categoria']) : '';
+
+        // Primeiro: buscar todos os directors em ordem rand
+        $directors_args = [
+            'post_type' => 'team',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'orderby' => 'rand',
+            'tax_query' => [
+                [
+                    'taxonomy' => 'team-category',
+                    'field' => 'slug',
+                    'terms' => 'directors',
+                ],
+            ],
+        ];
+
+        // se foi passada categoria para filtrar, intersectar
+        if (!empty($categoria)) {
+            $filter_slugs = array_map('trim', explode(',', $categoria));
+            $directors_args['tax_query'][] = [
+                'taxonomy' => 'team-category',
+                'field' => 'slug',
+                'terms' => $filter_slugs,
+            ];
+        }
+
+        $directors = get_posts($directors_args);
+        $director_ids = wp_list_pluck($directors, 'ID');
+
+        // Segundo: buscar outros teams (excluindo directors)
+        $others_args = [
+            'post_type' => 'team',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',
+            'orderby' => 'rand',
+            'post__not_in' => $director_ids,
+        ];
+
+        // aplicar filtro de categoria (se fornecida) também para outros
+        if (!empty($categoria)) {
+            $filter_slugs = array_map('trim', explode(',', $categoria));
+            $others_args['tax_query'] = [
+                [
+                    'taxonomy' => 'team-category',
+                    'field' => 'slug',
+                    'terms' => $filter_slugs,
+                ],
+            ];
+            // se queremos incluir directors only in front, keep post__not_in to exclude them
+        }
+
+        $others = get_posts($others_args);
+
+        // juntar: directors primeiro, depois outros
+        $all = array_values(array_merge($directors, $others));
+        $total = count($all);
+
+        // Paginação manual sobre array combinado
+        $start = ($page - 1) * $ppp;
+        $slice = array_slice($all, $start, $ppp);
+
+        $teams = [];
+        foreach ($slice as $post) {
+            setup_postdata($post);
+            $acf = function_exists('get_fields') ? get_fields($post->ID) : [];
+
+            $tags = [];
+            if (!empty($acf) && !empty($acf['tags']) && is_array($acf['tags'])) {
+                foreach ($acf['tags'] as $row) {
+                    $tags[] = [
+                        'tag' => $row['tag'] ?? '',
+                        'tag_link' => $row['tag_link'] ?? '',
+                    ];
+                }
+            }
+
+            $teams[] = [
+                'id' => $post->ID,
+                'title' => get_the_title($post->ID),
+                'thumb' => $acf['thumb'] ?? get_the_post_thumbnail_url($post->ID, 'large'),
+                'job_title' => $acf['job_title'] ?? '',
+                'academic_qualifications' => $acf['academic_qualifications'] ?? '',
+                'tags' => $tags,
+                'slug' => get_post_field('post_name', $post->ID),
+                'excerpt' => get_the_excerpt($post->ID),
+            ];
+        }
+
+        wp_reset_postdata();
+
+        return new WP_REST_Response([
+            'status' => true,
+            'data' => $teams,
+            'total' => $total,
+            'max_pages' => $ppp > 0 ? ceil($total / $ppp) : 1,
         ], 200);
     }
 
