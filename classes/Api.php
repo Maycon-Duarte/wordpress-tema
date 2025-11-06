@@ -628,7 +628,8 @@ class Api
             $teams[] = [
                 'id' => $post->ID,
                 'title' => get_the_title($post->ID),
-                'thumb' => $acf['thumb'] ?? get_the_post_thumbnail_url($post->ID, 'large'),
+                'thumb' => get_the_post_thumbnail_url($post->ID, 'large'),
+                'modal_image' => $acf['thumb'] ?? '',
                 'job_title' => $acf['job_title'] ?? '',
                 'academic_qualifications' => $acf['academic_qualifications'] ?? '',
                 'tags' => $tags,
