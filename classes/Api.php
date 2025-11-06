@@ -635,6 +635,7 @@ class Api
                 'tags' => $tags,
                 'slug' => get_post_field('post_name', $post->ID),
                 'excerpt' => get_the_excerpt($post->ID),
+                'content' => wp_kses_post(apply_filters('the_content', $post->post_content)),
             ];
         }
 
