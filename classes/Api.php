@@ -323,7 +323,7 @@ class Api
 
         $item = [
             'id' => $post->ID,
-            'title' => get_the_title($post->ID),
+            'title' => get_field('title', $post->ID),
             'slug' => $slug,
             'date' => get_the_date('j M Y', $post->ID),
             'dateRelative' => human_time_diff(get_post_time('U', true, $post), current_time('timestamp')) . ' atrás',
